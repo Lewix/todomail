@@ -13,7 +13,7 @@ import json
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
 from oauth2client.tools import run
-from urllib import urlopen
+from urllib import urlencode
 from docopt import docopt
 
 class TaskApi:
@@ -42,12 +42,11 @@ class TaskApi:
         response, content = self.http.request(url, 'GET')
         return json.loads(content)['items']
 
-    def add_task(tasklist, title=task):
+    def add_task(self, tasklist, task):
         url = 'https://www.googleapis.com/tasks/v1/lists/{0}/tasks'.format(tasklist)
         data = { 'title' : task }
-        resp, content = h.request(url, 'POST', urlencode(data))
-        print resp
-        print content
+        headers = { 'Content-type': 'application/json' }
+        resp, content = self.http.request(url, 'POST', headers=headers, body=json.dumps(data))
 
 
 class TodoList:
@@ -66,13 +65,13 @@ class TodoList:
         for i, task in zip(range(1,len(tasks)+1), tasks):
             print '({0}) {1}'.format(i,task['title'])
 
-    def add_task(task):
-        self.taskapi.add_task(tasklist, title=task)
+    def add_task(self, task):
+        self.taskapi.add_task(self.tasklist, task)
 
-    def done_task(tid):
+    def done_task(self, tid):
         pass
 
-    def edit_task(tid, task):
+    def edit_task(self, tid, task):
         pass
 
 if __name__ == '__main__':
