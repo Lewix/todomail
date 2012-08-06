@@ -2,9 +2,10 @@ import imaplib
 import email
 from todo_list import TodoList
 
+login_details = 'gmail_login'
 
 class MailBox:
-    def __init__(self, imap_server, port, mailbox):
+    def __init__(self, imap_server, port, mailbox, username, password):
         self.M = imaplib.IMAP4_SSL(imap_server, port)
         self.M.login(username, password)
         self.mailbox = mailbox
@@ -61,7 +62,11 @@ def add_tasks(mail_titles, list_name, mailbox):
 
 
 if __name__ == '__main__':
-    mailbox = MailBox('imap.gmail.com', 993,  '[Google Mail]/Starred')
+    f = open(login_details, 'r')
+    username = f.readline()[:-1]
+    password = f.readline()[:-1]
+    f.close()
+    mailbox = MailBox('imap.gmail.com', 993,  '[Google Mail]/Starred', username, password)
     mails = mailbox.list_mail()
     mail_titles = [mail['Subject'] for mail in mails]
 
