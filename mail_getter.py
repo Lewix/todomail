@@ -1,23 +1,71 @@
 import imaplib
 import email
+from todo_list import TodoList
 
 username = 'lewix7@gmail.com'
 password = 'kpncuwapeouburmu'
 
 
-def list_mail(imap_server, port, mailbox):
-    mail = []
-    M = imaplib.IMAP4_SSL(imap_server, port)
-    M.login(username, password)
-    M.select(mailbox)
-    typ, data = M.search(None, 'ALL')
-    for num in data[0].split():
-        typ, data = M.fetch(num, '(RFC822)')
+class MailBox:
+    def __init__(self, imap_server, port, mailbox):
+        self.M = imaplib.IMAP4_SSL(imap_server, port)
+        self.M.login(username, password)
+        self.mailbox = mailbox
+        self.M.select(mailbox)
+        typ, self.data = self.M.search(None, 'ALL')
+
+    def get_data(self):
+        if self.data:
+            return self.data[0].split()
+        else:
+            return []
+
+    def get_email(self, num):
+        self.M.select(self.mailbox)
+        typ, data = self.M.fetch(num, '(RFC822)')
         msg = email.message_from_string(data[0][1])
-        mail.append(msg)
-    M.close()
-    return mail
+        return msg
+
+    def list_mail(self):
+        mail = []
+        for num in self.get_data():
+            msg = self.get_email(num)
+            mail.append(msg)
+        self.M.close()
+        return mail
+
+    def delete_mail(self, subject):
+        for num in self.get_data():
+            msg = self.get_email(num)
+            if msg['Subject'] == subject:
+                self.M.store(num, '+FLAGS', '\\Deleted')
+                break
+        self.M.expunge()
+
+def add_tasks(mail_titles, list_name, mailbox):
+    todo = TodoList(list_name)
+
+    tasks_with_notes = [t for t in todo.get_tasks(True) if 'notes' in t]
+    gmail_tasks = [t['title'] for t in tasks_with_notes if 'gmail' in t['notes']]
+    finished_tasks = [t for t in tasks_with_notes if t['status'] == 'completed']
+    finished_gmail_tasks = [t['title'] for t in finished_tasks if 'gmail' in t['notes']]
+
+    # Unstar any finished tasks
+    for task in finished_gmail_tasks:
+        mailbox.delete_mail(task)
+            
+    # Clear finished tasks
+    todo.clear_finished()
+
+    # Add any newly starred email to tasks
+    for mail in mail_titles:
+        if not mail in gmail_tasks:
+            todo.add_task(mail, 'gmail')
+
 
 if __name__ == '__main__':
-    for mail in list_mail('imap.gmail.com', 993, '[Google Mail]/Starred'):
-        print mail['Subject']
+    mailbox = MailBox('imap.gmail.com', 993,  '[Google Mail]/Starred')
+    mails = mailbox.list_mail()
+    mail_titles = [mail['Subject'] for mail in mails]
+
+    add_tasks(mail_titles, 'Mobile List', mailbox)
