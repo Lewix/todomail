@@ -2,9 +2,6 @@ import imaplib
 import email
 from todo_list import TodoList
 
-username = 'lewix7@gmail.com'
-password = 'kpncuwapeouburmu'
-
 
 class MailBox:
     def __init__(self, imap_server, port, mailbox):
