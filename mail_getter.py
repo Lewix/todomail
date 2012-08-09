@@ -1,8 +1,10 @@
 import imaplib
 import email
+import os
 from todo_list import TodoList
 
-login_details = 'gmail_login'
+login_details = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'gmail_login')
+             
 
 class MailBox:
     def __init__(self, imap_server, port, mailbox, username, password):
