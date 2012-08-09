@@ -25,7 +25,7 @@ class TaskApi:
                     client_secret='oe6Mw-DiS-Ctgw4PwQ00NqtA',
                     scope='https://www.googleapis.com/auth/tasks',
                     user_agent='todo_list')
-            dat_file = os.path.join(os.path.realpath(__file__), '../tasks.dat')
+            dat_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tasks.dat')
             storage = Storage(dat_file)
             credentials = storage.get()
             if credentials is None or credentials.invalid == True:
