@@ -10,6 +10,7 @@ Usage:
 
 import httplib2
 import json
+import os
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.file import Storage
 from oauth2client.tools import run
@@ -24,7 +25,8 @@ class TaskApi:
                     client_secret='oe6Mw-DiS-Ctgw4PwQ00NqtA',
                     scope='https://www.googleapis.com/auth/tasks',
                     user_agent='todo_list')
-            storage = Storage('/mnt/media/git/personal/python/todomail/tasks.dat')
+            dat_file = os.path.join(os.path.realpath(__file__), '../tasks.dat')
+            storage = Storage(dat_file)
             credentials = storage.get()
             if credentials is None or credentials.invalid == True:
                 credentials = run(flow, storage)
