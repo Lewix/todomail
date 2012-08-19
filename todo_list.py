@@ -23,8 +23,8 @@ class TaskApi:
     def __init__(self, client_id, client_secret):
             # OAuth2 authentication
             flow = OAuth2WebServerFlow(
-                    client_id=client_secret,
-                    client_secret=client_id,
+                    client_id=client_id,
+                    client_secret=client_secret,
                     scope='https://www.googleapis.com/auth/tasks',
                     user_agent='todo_list')
             dat_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tasks.dat')
@@ -64,7 +64,12 @@ class TaskApi:
         return self.get_tasks(tasklist)[task_number-1]
 
 class TodoList:
-    def __init__(self, list_name, client_id, client_secret):
+    def __init__(self, list_name):
+        f = open(client_details, 'r')
+        client_id = f.readline()[:-1]
+        client_secret = f.readline()[:-1]
+        f.close()
+
         self.taskapi = TaskApi(client_id, client_secret)
         
         for tasklist in self.taskapi.list_tasklists():
@@ -108,12 +113,7 @@ class TodoList:
 if __name__ == '__main__':
     arguments = docopt(__doc__)
 
-    f = open(client_details, 'r')
-    client_id = f.readline()[:-1]
-    client_secret = f.readline()[:-1]
-    f.close()
-
-    todo_list = TodoList('Mobile List', client_id, client_secret)
+    todo_list = TodoList('Mobile List')
     if arguments['ls']:
         todo_list.list_tasks()
     elif arguments['add']:
